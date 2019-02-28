@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <name>MMKV</name>
     <js-module name="mmkv" src="www/mmkv.js">
-        <clobbers target="windows.mmkv" />
+        <clobbers target="window.mmkv" />
     </js-module>
     <platform name="android">
         <config-file parent="/*" target="res/xml/config.xml">

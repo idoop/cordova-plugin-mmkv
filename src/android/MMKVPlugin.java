@@ -69,7 +69,6 @@ public class MMKVPlugin extends CordovaPlugin {
             cb.error("It has been initialized.");
         }
         return false;
-        return true;
     }
 
     // 创建mmkv实例,可创建多个.
