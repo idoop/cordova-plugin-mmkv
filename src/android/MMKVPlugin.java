@@ -1,4 +1,4 @@
-package cordova.plugin.mmkv;
+package org.apache.cordova.mmkv;
 
 import java.security.KeyStore.CallbackHandlerProtection;
 import java.util.HashMap;
@@ -60,7 +60,7 @@ public class MMKVPlugin extends CordovaPlugin {
     // 初始化mmkv实例,首次运行,必须初始化.
     private boolean initMMKV(String rootDir, CallbackContext cb) {
         if (!isInit) {
-            MMKV.initialize(rootDir);
+            rootDir = MMKV.initialize(rootDir);
             kvMap = new HashMap();
             isInit = true;
             cb.success("Success");
@@ -69,6 +69,7 @@ public class MMKVPlugin extends CordovaPlugin {
             cb.error("It has been initialized.");
         }
         return false;
+        return true;
     }
 
     // 创建mmkv实例,可创建多个.

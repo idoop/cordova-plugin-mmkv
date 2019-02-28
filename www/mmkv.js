@@ -1,7 +1,9 @@
-var exec = require('cordova/exec');
 
-module.exports = {
-    /**
+window.mmkv = {
+    exec: function(success,failure,action,args){
+        cordova.exec(success,failure,action,args);
+    },
+        /**
      * init mmkv
      * @param {function} success Callback function
      * @param {function} failure Callback function
@@ -124,3 +126,4 @@ module.exports = {
         exec(success,failure,"MMKVPlugin","clearAll",[mmkvId]);
     }
 }
+module.exports = mmkv;
