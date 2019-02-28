@@ -10,7 +10,7 @@ window.mmkv = {
      * @param {string} rootDir file save path
      */
     init: function(success,failure,rootDir) {
-        exec(success,failure,"MMKVPlugin","init",[rootDir]);
+        this.exec(success,failure,"MMKVPlugin","init",[rootDir]);
     },
     /**
      * create a mmkv instance.
@@ -19,7 +19,7 @@ window.mmkv = {
      * @param {string} mmkvId mmkv instance ID
      */
     create: function(success,failure,mmkvId) {
-        exec(success,failure,"MMKVPlugin","create",[mmkvId]);
+        this.exec(success,failure,"MMKVPlugin","create",[mmkvId]);
     },
     /**
      * close a mmkv instance
@@ -28,7 +28,7 @@ window.mmkv = {
      * @param {string} mmkvId mmkv instance ID
      */
     close: function(success,failure,mmkvId) {
-        exec(success,failure,"MMKVPlugin","close",[mmkvId]);
+        this.exec(success,failure,"MMKVPlugin","close",[mmkvId]);
     },
     /**
      * destroy mmkv.
@@ -36,7 +36,7 @@ window.mmkv = {
      * @param {function} failure Callback function
      */
     destroy: function(success,failure) {
-        exec(success,failure,"MMKVPlugin","destroy",[]);
+        this.exec(success,failure,"MMKVPlugin","destroy",[]);
     },
     /**
      * read a key's value.
@@ -46,7 +46,7 @@ window.mmkv = {
      * @param {string} key the key
      */
     read: function(success,failure,mmkvId,key) {
-        exec(success,failure,"MMKVPlugin","read",[mmkvId,key]);
+        this.exec(success,failure,"MMKVPlugin","read",[mmkvId,key]);
     },
     /**
      * write a kv to disk.
@@ -57,7 +57,7 @@ window.mmkv = {
      * @param {string} value the value
      */
     write: function(success,failure,mmkvId,key,value) {
-        exec(success,failure,"MMKVPlugin","write",[mmkvId,key,value]);
+        this.exec(success,failure,"MMKVPlugin","write",[mmkvId,key,value]);
     },
     /**
      * erase(delete) a kv.
@@ -67,7 +67,7 @@ window.mmkv = {
      * @param {string} key the key
      */
     erase: function(success,failure,mmkvId,key) {
-        exec(success,failure,"MMKVPlugin","erase",[mmkvId,key]);
+        this.exec(success,failure,"MMKVPlugin","erase",[mmkvId,key]);
     },
     /**
      * check mmkv instance is contain k.
@@ -77,7 +77,7 @@ window.mmkv = {
      * @param {string} key the key
      */
     contain: function(success,failure,mmkvId,key) {
-        exec(success,failure,"MMKVPlugin","contain",[mmkvId,key]);
+        this.exec(success,failure,"MMKVPlugin","contain",[mmkvId,key]);
     },
     /**
      * get mmkv file size.
@@ -86,7 +86,7 @@ window.mmkv = {
      * @param {string} mmkvId mmkv instance ID
      */
     fileSize: function(success,failure,mmkvId) {
-        exec(success,failure,"MMKVPlugin","fileSize",[mmkvId]);
+        this.exec(success,failure,"MMKVPlugin","fileSize",[mmkvId]);
     },
     /**
      * get keys number from a mmkv instance.
@@ -95,7 +95,7 @@ window.mmkv = {
      * @param {string} mmkvId mmkv instance ID
      */
     count: function(success,failure,mmkvId) {
-        exec(success,failure,"MMKVPlugin","count",[mmkvId]);
+        this.exec(success,failure,"MMKVPlugin","count",[mmkvId]);
     },
     /**
      * get value length/size by key with mmkv instance
@@ -105,7 +105,7 @@ window.mmkv = {
      * @param {string} key the key
      */
     valueSize: function(success,failure,mmkvId,key) {
-        exec(success,failure,"MMKVPlugin","valueSize",[mmkvId,key]);
+        this.exec(success,failure,"MMKVPlugin","valueSize",[mmkvId,key]);
     },
     /**
      * trim a mmkv instance.
@@ -114,7 +114,7 @@ window.mmkv = {
      * @param {string} mmkvId mmkv instance ID
      */
     trim: function(success,failure,mmkvId) {
-        exec(success,failure,"MMKVPlugin","trim",[mmkvId]);
+        this.exec(success,failure,"MMKVPlugin","trim",[mmkvId]);
     },
     /**
      * clear all kv.
@@ -123,7 +123,7 @@ window.mmkv = {
      * @param {string} mmkvId mmkv instance ID
      */
     clearAll: function(success,failure,mmkvId) {
-        exec(success,failure,"MMKVPlugin","clearAll",[mmkvId]);
+        this.exec(success,failure,"MMKVPlugin","clearAll",[mmkvId]);
     }
 }
 module.exports = mmkv;
