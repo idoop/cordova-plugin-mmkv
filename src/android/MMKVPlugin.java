@@ -1,13 +1,14 @@
 package org.apache.cordova.mmkv;
 
-import java.security.KeyStore.CallbackHandlerProtection;
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import com.tencent.mmkv.MMKV;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
-
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,65 +18,99 @@ import org.json.JSONObject;
  */
 public class MMKVPlugin extends CordovaPlugin {
 
-    // System.out.println("mmkv root: " + mmkvDir);
-    // private MMKV kv = MMKV.defaultMMKV();//默认实例
-    private Map<String, MMKV> kvMap;
+    // private MMKV kv = MMKV.defaultMMKV();// default instance
+    private static final Map<String, MMKV> kvMap = new HashMap();
     private boolean isInit = false;
+    private JSONObject jObj;
+    private String v1,v2,v3;
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext cb) throws JSONException {
+        switch (data.length()){
+            case 0:
+                break;
+            case 1:
+                v1 = data.getString(0);
+                break;
+            case 2:
+                v1 = data.getString(0);
+                v2 = data.getString(1);
+                break;
+            case 3:
+                v1 = data.getString(0);
+                v2 = data.getString(1);
+                v3 = data.getString(2);
+                break;
+        }
+//      Log.e("MMKV step","init");
+        cb.error(generateJsonObj(false,"Must have content."));
         if(action.equals("init")) {
-            return initMMKV(data.getString(0), cb);
+            return (v1.length() >=0) && initMMKV(v1, cb);
         }else if(action.equals("create")){
-            return createMMKV(data.getString(0), cb);
+            return (v1.length() >0) && createMMKV(v1, cb);
         }else if(action.equals("destroy")){
             return destroyMMKV(cb);
         }else if(action.equals("read")) {
-            return kvRead(data.getString(0), data.getString(1), cb);
+            return (v1.length() >0) && (v2.length() >0) && kvRead(v1, v2, cb);
         }else if(action.equals("write")) {
-            return kvWrite(data.getString(0), data.getString(1), data.getString(2),cb);
+            return (v1.length() >0) && (v2.length() >0) && (v3.length() > 0) && kvWrite(v1, v2, v3,cb);
         }else if(action.equals("erase")) {
-            return kvErase(data.getString(0),data.getString(1),cb);
+            return (v1.length() >0) && (v2.length() >0) && kvErase(v1,v2,cb);
         }else if(action.equals("contain")){
-            return kvContains(data.getString(0), data.getString(1), cb);
+            return (v1.length() >0) && (v2.length() >0) && kvContains(v1,v2, cb);
         }else if(action.equals("fileSize")){
-            return kvFileSize(data.getString(0),cb);
+            return (v1.length() >0) && kvFileSize(v1,cb);
         }else if(action.equals("count")){
-            return kvKeyCount(data.getString(0),cb);
+            return (v1.length() >0) && kvKeyCount(v1,cb);
         }else if(action.equals("valueSize")){
-            return kvValueSize(data.getString(0), data.getString(1),cb);
+            return (v1.length() >0) && (v2.length() >0) && kvValueSize(v1,v2,cb);
         }else if(action.equals("trim")){
-            return kvTrim(data.getString(0), cb);
+            return (v1.length() >0) && kvTrim(v1, cb);
         }else if(action.equals("close")){
-            return kvClose(data.getString(0), cb);
+            return (v1.length() >0) &&  kvClose(v1, cb);
         }else if(action.equals("clearAll")){
-            return kvClearAll(data.getString(0), cb);
+            return (v1.length() >0) &&  kvClearAll(v1, cb);
         }
         else{
-            cb.error("Unknow action.");
+            cb.error(PluginResult.Status.INVALID_ACTION.toString());
         }
         return false;
     }
 
+    private JSONObject generateJsonObj(boolean isSuccess, String result) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("isSuccess",isSuccess);
+        jsonObj.put("result",result);
+        return jsonObj;
+    }
+
     // 初始化mmkv实例,首次运行,必须初始化.
     private boolean initMMKV(String rootDir, CallbackContext cb) {
-        if (!isInit) {
-            rootDir = MMKV.initialize(rootDir);
-            kvMap = new HashMap();
-            isInit = true;
-            cb.success("Success");
-            return true;
-        } else {
-            cb.error("It has been initialized.");
+        try{
+            if (!isInit) {
+                if(rootDir.length() == 0){
+//                    rootDir = MMKV.initialize();
+                }else{
+                    rootDir = MMKV.initialize(rootDir);
+                }
+                isInit = true;
+                cb.success(generateJsonObj(true, rootDir));
+                return true;
+            } else {
+                cb.error(generateJsonObj(false, "It has been initialized."));
+            }
+        }catch(JSONException e){
+            cb.error(e.getMessage());
+//            Log.e(e);
         }
         return false;
     }
 
     // 创建mmkv实例,可创建多个.
-    private boolean createMMKV(String id, CallbackContext cb) {
+    private boolean createMMKV(String id, CallbackContext cb) throws JSONException{
         // if(!kvMap.containsKey(id)){ //应该是可以重复赋值,所以无需检测
         kvMap.put(id, MMKV.mmkvWithID(id, MMKV.MULTI_PROCESS_MODE));
-        cb.success("Init MMKV (" + id + ") Success.");
+        cb.success(generateJsonObj(true, "Init MMKV ("+id+") Success."));
         return true;
         // }else{
         // cb.error("Init MMKV (" + id + ") Failed. Already exist same ID.");
@@ -84,139 +119,139 @@ public class MMKVPlugin extends CordovaPlugin {
     }
 
     // 销毁并退出.
-    private boolean destroyMMKV(CallbackContext cb) {
+    private boolean destroyMMKV(CallbackContext cb) throws JSONException {
         MMKV.onExit();
         isInit = false;
         kvMap.clear();
-        cb.success("Success");
+        cb.success(generateJsonObj(true, "Success"));
         return true;
     }
 
     // 写入.
-    private boolean kvWrite(String id, String k, String v, CallbackContext cb) {
+    private boolean kvWrite(String id, String k, String v, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
             mm.encode(k, v);
-            cb.success("Success");
+            cb.success(generateJsonObj(true, "Success"));
             return true;
         } else {
-            cb.error("Not Exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not Exist MMKV: " + id));
         }
         return false;
     }
 
     // 读取.
-    private boolean kvRead(String id, String k, CallbackContext cb) {
+    private boolean kvRead(String id, String k, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
-            cb.success(mm.decodeString(k));
+            cb.success(generateJsonObj(true, mm.decodeString(k)));
             return true;
         } else {
-            cb.error("Not Exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not Exist MMKV: " + id));
         }
         return false;
     }
 
     // 删除.
-    private boolean kvErase(String id, String k, CallbackContext cb) {
+    private boolean kvErase(String id, String k, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
             mm.removeValueForKey(k);
-            cb.success("Success");
+            cb.success(generateJsonObj(true, "Success"));
             return true;
         } else {
-            cb.error("Not Exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not Exist MMKV: " + id));
         }
         return false;
     }
 
-    // 是否包含key.
-    private boolean kvContains(String id, String k, CallbackContext cb) {
+    // 是否存在key.
+    private boolean kvContains(String id, String k, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
             if (mm.containsKey(k)) {
-                cb.success("exist");
+                cb.success(generateJsonObj(true, "exist"));
                 return true;
             } else {
-                cb.error("Not exist key: " + k);
-                return false;
+                cb.success(generateJsonObj(false, "Not exist"));
+                return true;
             }
         } else {
-            cb.error("Not exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not exist MMKV: " + id));
         }
         return false;
     }
 
     // 获取文件大小.
-    private boolean kvFileSize(String id, CallbackContext cb) {
+    private boolean kvFileSize(String id, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
-            cb.success(String.valueOf((mm.totalSize())));
+            cb.success(generateJsonObj(true, String.valueOf((mm.totalSize()))));
             return true;
         } else {
-            cb.error("Not exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not exist MMKV: " + id));
         }
         return false;
     }
 
     // 获取所有k数.
-    private boolean kvKeyCount(String id, CallbackContext cb) {
+    private boolean kvKeyCount(String id, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
-            cb.success(String.valueOf(mm.count()));
+            cb.success(generateJsonObj(true, String.valueOf(mm.count())));
             return true;
         } else {
-            cb.error("Not exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not exist MMKV: " + id));
         }
         return false;
     }
 
     // 获取指定key的value的length.
-    private boolean kvValueSize(String id, String k, CallbackContext cb) {
+    private boolean kvValueSize(String id, String k, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
-            cb.success(String.valueOf(mm.getValueSize(k)));
+            cb.success(generateJsonObj(true, String.valueOf(mm.getValueSize(k))));
             return true;
         } else {
-            cb.error("Not exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not exist MMKV: " + id));
         }
         return false;
     }
 
     // 我的理解就是整理并优化文件大小.
-    private boolean kvTrim(String id, CallbackContext cb) {
+    private boolean kvTrim(String id, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
             mm.trim();
-            cb.success("Success");
+            cb.success(generateJsonObj(true, "Success"));
             return true;
         } else {
-            cb.error("Not exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not exist MMKV: " + id));
         }
         return false;
     }
 
     // 关闭某个mmkv实例.
-    private boolean kvClose(String id, CallbackContext cb) {
+    private boolean kvClose(String id, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
             mm.close();
-            cb.success("Success");
+            cb.success(generateJsonObj(true, "Success"));
             return true;
         } else {
-            cb.error("Not exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not exist MMKV: " + id));
         }
         return false;
     }
 
     // 清楚所有KV.
-    private boolean kvClearAll(String id, CallbackContext cb) {
+    private boolean kvClearAll(String id, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
             mm.clearAll();
-            cb.success("Success");
+            cb.success(generateJsonObj(true, "Success"));
         } else {
-            cb.error("Not exist MMKV: " + id);
+            cb.error(generateJsonObj(false, "Not exist MMKV: " + id));
         }
         return false;
     }
