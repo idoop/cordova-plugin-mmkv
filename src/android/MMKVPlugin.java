@@ -42,11 +42,12 @@ public class MMKVPlugin extends CordovaPlugin {
                 v3 = data.getString(2);
                 break;
         }
-//      Log.e("MMKV step","init");
-        cb.error(generateJsonObj(false,"Must have content."));
-        if(action.equals("init")) {
-            return (v1.length() >=0) && initMMKV(v1, cb);
-        }else if(action.equals("create")){
+        Log.d("MMKV action: ",action);
+        Log.d("MMKV data: ",data.toString());
+        // if(action.equals("init")) {
+        //     return (v1.length() >=0) && initMMKV(v1, cb);
+        // }else 
+        if(action.equals("create")){
             return (v1.length() >0) && createMMKV(v1, cb);
         }else if(action.equals("destroy")){
             return destroyMMKV(cb);
@@ -84,27 +85,27 @@ public class MMKVPlugin extends CordovaPlugin {
         return jsonObj;
     }
 
-    // 初始化mmkv实例,首次运行,必须初始化.
-    private boolean initMMKV(String rootDir, CallbackContext cb) {
-        try{
-            if (!isInit) {
-                if(rootDir.length() == 0){
-//                    rootDir = MMKV.initialize();
-                }else{
-                    rootDir = MMKV.initialize(rootDir);
-                }
-                isInit = true;
-                cb.success(generateJsonObj(true, rootDir));
-                return true;
-            } else {
-                cb.error(generateJsonObj(false, "It has been initialized."));
-            }
-        }catch(JSONException e){
-            cb.error(e.getMessage());
-//            Log.e(e);
-        }
-        return false;
-    }
+    // 初始化mmkv实例, 为了防止释放,应放在 application类 的 onCreate()中创建,故此处注释.
+//     private boolean initMMKV(String rootDir, CallbackContext cb) {
+//         try{
+//             if (!isInit) {
+//                 if(rootDir.length() == 0){
+// //                    rootDir = MMKV.initialize();
+//                 }else{
+//                     rootDir = MMKV.initialize(rootDir);
+//                 }
+//                 isInit = true;
+//                 cb.success(generateJsonObj(true, rootDir));
+//                 return true;
+//             } else {
+//                 cb.error(generateJsonObj(false, "It has been initialized."));
+//             }
+//         }catch(JSONException e){
+//             cb.error(e.getMessage());
+// //            Log.e(e);
+//         }
+//         return false;
+//     }
 
     // 创建mmkv实例,可创建多个.
     private boolean createMMKV(String id, CallbackContext cb) throws JSONException{
@@ -244,7 +245,7 @@ public class MMKVPlugin extends CordovaPlugin {
         return false;
     }
 
-    // 清楚所有KV.
+    // 清除所有KV.
     private boolean kvClearAll(String id, CallbackContext cb) throws JSONException {
         if (kvMap.containsKey(id)) {
             MMKV mm = kvMap.get(id);
@@ -255,5 +256,4 @@ public class MMKVPlugin extends CordovaPlugin {
         }
         return false;
     }
-
 }

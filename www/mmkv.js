@@ -9,15 +9,15 @@ window.mmkv = {
             failure(result);
         },"MMKVPlugin",action,args);
     },
-        /**
-     * init mmkv
-     * @param {function} success Callback function
-     * @param {function} failure Callback function
-     * @param {string} rootDir file save path
-     */
-    init: function(success,failure,rootDir) {
-        this.exec(success,failure,"init",[rootDir]);
-    },
+    //     /**
+    //  * init mmkv
+    //  * @param {function} success Callback function
+    //  * @param {function} failure Callback function
+    //  * @param {string} rootDir file save path
+    //  */
+    // init: function(success,failure,rootDir) {
+    //     this.exec(success,failure,"init",[rootDir]);
+    // },
     /**
      * create a mmkv instance.
      * @param {function} success Callback function
